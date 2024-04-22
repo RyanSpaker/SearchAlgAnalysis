@@ -234,6 +234,29 @@ impl Graph{
         }
         return -1.0;
     }
+
+    pub fn shortest_path_dijkstras(&self, from: u32, to: u32) -> f32{
+        let mut table: Vec<f32> = vec![f32::MAX; self.edges.len()];
+        table[from as usize] = 0.0;
+        let mut visited_nodes = HashSet::new();
+        let mut non_infinite_nodes = HashSet::new(); non_infinite_nodes.insert(from);
+        loop{
+            // find lowest unvisited node
+            let mut min = f32::MAX;
+            let mut min_vert = 0;
+            for vert in non_infinite_nodes.iter(){
+                if table[*vert as usize] < min {min = table[*vert as usize]; min_vert = *vert;}
+            }
+            if min_vert == to {return table[min_vert as usize];}
+            //visit node and propogate distance to neighbors
+            visited_nodes.insert(min_vert);
+            non_infinite_nodes.remove(&min_vert);
+            for (edge_vert, edge_dist) in self.edges[min_vert as usize].iter(){
+                table[*edge_vert as usize] = table[*edge_vert as usize].min(table[min_vert as usize] + *edge_dist);
+                if ! visited_nodes.contains(edge_vert) {non_infinite_nodes.insert(*edge_vert);}
+            }
+        }
+    }
 }
 
 pub fn dist(a: &(f32, f32), b: &(f32, f32)) -> f32{
