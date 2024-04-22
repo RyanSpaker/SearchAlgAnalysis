@@ -96,6 +96,41 @@ impl Graph{
         Self{edges}
     }
 
+    pub fn new_random_2d_taxicab(vertice_count: u32, edge_count: u32) -> Self{
+        let mut rng = rand::thread_rng();
+        let vertices = (0..vertice_count).into_iter().map(|_| (rng.gen_range(0.0..1.0), rng.gen_range(0.0..1.0))).collect::<Vec<(f32, f32)>>();
+
+        let mut edges = vec![HashMap::new(); vertice_count as usize];
+        let mut unconnected_vertices = Vec::from_iter((0..vertice_count).into_iter());
+        let mut connected_vertices = Vec::with_capacity(vertice_count as usize);
+        let mut next_vert; let mut connected_vert;
+        let mut dist;
+        while !unconnected_vertices.is_empty() {
+            next_vert = unconnected_vertices.remove(rng.gen_range(0..unconnected_vertices.len()));
+            connected_vert = connected_vertices[rng.gen_range(0..connected_vertices.len())];
+            dist = 
+                (vertices[next_vert as usize].0 - vertices[connected_vert as usize].0).abs() + 
+                (vertices[next_vert as usize].1 - vertices[connected_vert as usize].1).abs();
+            edges[next_vert as usize].insert(connected_vert, dist);
+            edges[connected_vert as usize].insert(next_vert, dist);
+            connected_vertices.push(next_vert);
+        }
+        let mut remainin_edges = edge_count-vertice_count;
+        while remainin_edges > 0 {
+            next_vert = rng.gen_range(0..vertice_count);
+            connected_vert = rng.gen_range(0..vertice_count);
+            dist = 
+                (vertices[next_vert as usize].0 - vertices[connected_vert as usize].0).abs() + 
+                (vertices[next_vert as usize].1 - vertices[connected_vert as usize].1).abs();
+            if !edges[next_vert as usize].contains_key(&connected_vert) {
+                edges[next_vert as usize].insert(connected_vert, dist);
+                edges[connected_vert as usize].insert(next_vert, dist);
+                remainin_edges -= 1;
+            }
+        }
+        Self{edges}
+    }
+
     pub fn vertex_count(&self) -> usize {self.edges.len()}
     pub fn avg_edge_count(&self) -> f32 {
         self.edges.iter().map(|map| map.len() as f32).sum::<f32>() / (self.vertex_count() as f32)
