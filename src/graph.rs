@@ -1,4 +1,4 @@
-use std::{collections::HashMap, fs::File, hash::Hash, io::{BufRead, BufReader}};
+use std::{collections::HashMap, fs::File, io::{BufRead, BufReader}};
 
 
 
@@ -29,4 +29,18 @@ impl Graph{
     pub fn new_san_francisco() -> Self {Self::from_file("datasets/sf.txt".to_string()).unwrap()}
     pub fn new_oldenburg() -> Self {Self::from_file("datasets/old.txt".to_string()).unwrap()}
     pub fn new_san_joaquin() -> Self {Self::from_file("datasets/sjc.txt".to_string()).unwrap()}
+
+    pub fn vertex_count(&self) -> usize {self.edges.len()}
+    pub fn avg_edge_count(&self) -> f32 {
+        self.edges.iter().map(|map| map.len() as f32).sum::<f32>() / (self.vertex_count() as f32)
+    }
+    pub fn is_edge(&self, from: u32, to: u32) -> bool {
+        self.edges.len() > from as usize && self.edges[from as usize].contains_key(&to)
+    }
+    pub fn get_edge(&self, from: u32, to: u32) -> f32{
+        if !self.is_edge(from, to) {return 0.0;}
+        *self.edges[from as usize].get(&to).unwrap()
+    }
+    
+
 }
